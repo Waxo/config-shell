@@ -1,0 +1,2 @@
+# xclip alias
+alias "cs=xclip -selection clipboard"
