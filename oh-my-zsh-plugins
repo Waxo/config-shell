@@ -1,1 +1,12 @@
-plugins=(git ember-cli bower node npm grunt yarn ubuntu thefuck)
+plugins=(
+  gitfast
+  ember-cli
+  bower
+  node
+  npm
+  grunt
+  yarn
+  thefuck
+  docker
+  docker-compose
+)
