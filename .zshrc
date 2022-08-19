@@ -3,36 +3,47 @@
 
 # Custom PATH
 export PATH=$PATH:/usr/local/sbin
+export PATH=$PATH:/Users/waxo/develop/flutter/bin
 export LC_ALL='en_US.UTF-8'
 export LANG='en_US.UTF-8'
 
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/waxo/.oh-my-zsh"
 
-alias python="python3"
-alias gwax="ga . && gcmsg f && grbi HEAD~2 && ggpush --force"
-alias gupdate="gco master && ggpull && gco staging && ggpull && gco develop && ggpull && gfa"
+alias tfwdev="tf workspace select dev"
+alias tfwprod="tf workspace select default"
+alias tfpdev="tfwdev && tfp -var-file=dev.tfvars"
+alias tfadev="tfwdev && tfa -var-file=dev.tfvars"
+alias tfpprod="tfwprod && tfp -var-file=prod.tfvars"
+alias tfaprod="tfwprod && tfa -var-file=prod.tfvars"
 
-gstag () {
-  git checkout staging
+alias gwax="ga . && gcn! && ggpush --force"
+alias gupdate="gco main && ggpull && gco develop && ggpull && gfa"
+alias gclbranch="git branch -l --no-color | grep -v 'develop\|main' | xargs git branch -D"
+
+alias avekia_env="source /Users/waxo/AvekiaProjects/avekia/bin/activate"
+
+alias ghmerge="gh pr merge --auto --delete-branch"
+
+cheh() {
+  str='gh pr create'
+  for reviewer in $@
+  do
+    str="$str --reviewer $reviewer"
+  done
+  eval $str
+}
+
+gmain () {
+  git checkout main
   git pull origin "$(git_current_branch)"
   git checkout develop
   git pull origin "$(git_current_branch)"
   git fetch --all --prune
-  git checkout -b deploy-staging/$1
-  git rebase staging
+  git checkout -b deploy-main/$1
+  git rebase main
   git push origin "$(git_current_branch)"
-}
-
-gmast () {
-  git checkout master
-  git pull origin "$(git_current_branch)"
-  git checkout staging
-  git pull origin "$(git_current_branch)"
-  git fetch --all --prune
-  git checkout -b deploy-master/$1
-  git rebase master
-  git push origin "$(git_current_branch)"
+  gh pr create --base main
 }
 
 
@@ -57,19 +68,20 @@ ZSH_THEME="waxo"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  gh
   git
   gitfast
-  ember-cli
-  bower
+  flutter
   node
-  npm
   gulp
   yarn
-  thefuck
   docker
   docker-compose
+  pip
+  python
+  terraform
+  virtualenv
 )
+RPROMPT='$(tf_prompt_info)'
 
 source $ZSH/oh-my-zsh.sh
 
@@ -87,7 +99,6 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-eval $(thefuck --alias)
 
 
 # tabtab source for serverless package
@@ -104,11 +115,14 @@ eval $(thefuck --alias)
 # uninstall by removing these lines or running `tabtab uninstall electron-forge`
 [[ -f /Users/waxo/WebstormProjects/ln23/node_modules/tabtab/.completions/electron-forge.zsh ]] && . /Users/waxo/WebstormProjects/ln23/node_modules/tabtab/.completions/electron-forge.zsh
 
-# added by travis gem
-[ -f /Users/waxo/.travis/travis.sh ] && source /Users/waxo/.travis/travis.sh
+# nvm
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/waxo/Downloads/tmp/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/waxo/Downloads/tmp/google-cloud-sdk/path.zsh.inc'; fi
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/waxo/Downloads/tmp/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/waxo/Downloads/tmp/google-cloud-sdk/completion.zsh.inc'; fi
+
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /usr/local/bin/terraform terraform
+
